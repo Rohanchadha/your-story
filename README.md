@@ -4,6 +4,12 @@ Bedtime is a premium AI storytelling web app for families. It turns a simple pro
 
 This repository contains the current MVP web experience built with Next.js and TypeScript.
 
+## 🎬 Demo Video
+
+Watch the full walkthrough on YouTube: **[Bedtime — Demo Video](https://www.youtube.com/watch?v=rEbvHEivrP8)**
+
+[![Bedtime demo video](https://img.youtube.com/vi/rEbvHEivrP8/maxresdefault.jpg)](https://www.youtube.com/watch?v=rEbvHEivrP8)
+
 ## What The App Does
 
 - Creates 6-panel illustrated stories from a parent or child prompt
