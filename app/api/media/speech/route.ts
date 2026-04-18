@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { hasOpenAIKey } from "@/lib/openai/client";
 import { generateSpeechAudio } from "@/lib/openai/speech-generation";
+import { saveStoryAudio } from "@/lib/storage/server-artifacts";
 import type { VoicePreset } from "@/lib/types/story";
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as { input?: string; voicePreset?: VoicePreset };
+  const body = (await request.json()) as { input?: string; voicePreset?: VoicePreset; storyId?: string };
 
   if (!body.input?.trim() || !body.voicePreset) {
     return NextResponse.json({ error: "Missing speech input." }, { status: 400 });
@@ -16,6 +17,11 @@ export async function POST(request: Request) {
 
   try {
     const audio = await generateSpeechAudio(body.input.trim(), body.voicePreset);
+
+    if (body.storyId) {
+      await saveStoryAudio(body.storyId, `narration-${body.voicePreset}`, audio);
+    }
+
     return new NextResponse(new Uint8Array(audio), {
       headers: {
         "Content-Type": "audio/mpeg",

@@ -34,17 +34,26 @@ export default function HomePage() {
     <PageShell>
       <HeroSection />
 
-      <section className="section-block">
+      <section className="section-block story-of-the-day">
         <div className="section-heading">
-          <div>
-            <p className="eyebrow">Story of the day</p>
-            <h2>{storyOfTheDay.title}</h2>
+          <div className="story-of-the-day__info">
+            {storyOfTheDay.coverImageUrl && (
+              <img
+                src={storyOfTheDay.coverImageUrl}
+                alt={storyOfTheDay.title}
+                className="story-of-the-day__image"
+              />
+            )}
+            <div>
+              <p className="eyebrow">Story of the day</p>
+              <h2>{storyOfTheDay.title}</h2>
+              <p className="muted-text">{storyOfTheDay.summary}</p>
+            </div>
           </div>
           <Button href={`/stories/${storyOfTheDay.id}`} variant="secondary">
             Open Story
           </Button>
         </div>
-        <p className="muted-text">{storyOfTheDay.summary}</p>
       </section>
 
       <CategoryGrid categories={homeCategories} />

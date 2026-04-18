@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Button } from "@/components/shared/Button";
 
 export function HeroSection() {
@@ -7,7 +8,7 @@ export function HeroSection() {
         <p className="eyebrow">Premium storytelling for modern families</p>
         <h1>Stories that feel hand-crafted for your child, even on your busiest days.</h1>
         <p className="hero-section__body">
-          Create narrated comic stories, explain big ideas simply, and print beautiful panels for screen-light story
+          Create narrated comic stories, explain big ideas simply, and print beautiful panels for screen-free story
           time.
         </p>
         <div className="hero-section__actions">
@@ -16,24 +17,17 @@ export function HeroSection() {
             Explore Favorites
           </Button>
         </div>
-        <div className="hero-section__chips" aria-label="Quick shortcuts">
-          <span>Adventure</span>
-          <span>Learn Something</span>
-          <span>Hindi</span>
-          <span>Levels 1-10</span>
-        </div>
       </div>
 
-      <div className="hero-section__panel">
-        <div className="hero-bubble">
-          <strong>Tonight's gentle mix</strong>
-          <p>1 curious bedtime story, 1 solar system explainer, and 1 printable comic layout.</p>
-        </div>
-        <div className="hero-poster">
-          <span>Story of the Day</span>
-          <h2>The Sunbeam Train</h2>
-          <p>A golden little engine helps planets stay on their sparkling paths.</p>
-        </div>
+      <div className="hero-section__copy hero-section__copy--image">
+        <Image
+          src="/images/hero-illustration.svg"
+          alt="A parent and child reading a magical storybook together"
+          width={560}
+          height={480}
+          priority
+          className="hero-illustration"
+        />
       </div>
     </section>
   );

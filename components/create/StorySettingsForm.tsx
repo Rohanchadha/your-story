@@ -53,6 +53,9 @@ export function StorySettingsForm({
             type="range"
             value={level}
           />
+          <small className="field-hint">
+            {level <= 3 ? "Simple words, short sentences (ages 2–4)" : level <= 6 ? "Richer vocabulary, gentle complexity (ages 4–7)" : "Longer narratives, bigger ideas (ages 7–10)"}
+          </small>
         </label>
 
         <label className="field">

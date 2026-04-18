@@ -63,6 +63,7 @@ export type StoryRecord = StorySummary & {
   prompt: string;
   fullText: string;
   narrationAudioUrl?: string;
+  narrationVoicePreset?: VoicePreset;
   childSnapshot?: ChildSnapshot | null;
   panels: StoryPanel[];
   origin: "seeded" | "generated";

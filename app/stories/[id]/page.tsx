@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PageShell } from "@/components/layout/PageShell";
 import { NarrationBar } from "@/components/story-reader/NarrationBar";
@@ -37,7 +36,6 @@ export default function StoryPage() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isGeneratingArt, setIsGeneratingArt] = useState(false);
   const [artStatusMessage, setArtStatusMessage] = useState("");
-  const [panelLoading, setPanelLoading] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!params.id) return;
@@ -78,6 +76,8 @@ export default function StoryPage() {
               },
               body: JSON.stringify({
                 prompt: panel.imagePrompt,
+                storyId: story.id,
+                panelId: panel.id,
               }),
             });
 
@@ -118,49 +118,6 @@ export default function StoryPage() {
     }
   }
 
-  async function handleGenerateSinglePanel(panelId: string) {
-    if (!story) return;
-
-    const panel = story.panels.find((item) => item.id === panelId);
-    if (!panel) return;
-
-    setPanelLoading((current) => ({ ...current, [panelId]: true }));
-    setArtStatusMessage("");
-
-    try {
-      const response = await fetch("/api/media/image", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          prompt: panel.imagePrompt,
-        }),
-      });
-
-      if (!response.ok) {
-        setArtStatusMessage("That panel could not be generated just now. Please retry.");
-        return;
-      }
-
-      const payload = (await response.json()) as { imageUrl: string };
-      const persisted = persistStoryPanelImages(story.id, { [panelId]: payload.imageUrl });
-      if (!story.coverImageUrl) {
-        persistStoryCoverImage(story.id, payload.imageUrl);
-      }
-      setStory(
-        persisted ?? {
-          ...story,
-          coverImageUrl: story.coverImageUrl ?? payload.imageUrl,
-          panels: story.panels.map((item) => (item.id === panelId ? { ...item, imageUrl: payload.imageUrl } : item)),
-        },
-      );
-      setArtStatusMessage("Panel artwork saved locally.");
-    } finally {
-      setPanelLoading((current) => ({ ...current, [panelId]: false }));
-    }
-  }
-
   if (!story) {
     return (
       <PageShell>
@@ -197,9 +154,6 @@ export default function StoryPage() {
             <FavoriteIcon filled={isFavorite} />
             <span>{isFavorite ? "Favorited" : "Favorite"}</span>
           </Button>
-          <Button className="story-cta story-cta--secondary" onClick={handleGenerateArtwork} variant="secondary">
-            {isGeneratingArt ? "Generating AI Art..." : "Generate AI Artwork"}
-          </Button>
           <Button className="story-cta story-cta--print" href={`/stories/${story.id}/print`} variant="secondary">
             <PrintIcon />
             <span>Print Story</span>
@@ -209,8 +163,8 @@ export default function StoryPage() {
 
       <NarrationBar
         story={story}
-        onNarrationReady={(audioUrl) => {
-          const persisted = persistStoryNarrationAudio(story.id, audioUrl);
+        onNarrationReady={(audioUrl, voicePreset) => {
+          const persisted = persistStoryNarrationAudio(story.id, audioUrl, voicePreset);
           if (persisted) {
             setStory(persisted);
           }
@@ -227,23 +181,10 @@ export default function StoryPage() {
           <article className="reader-panel" key={panel.id}>
             <div className="reader-panel__art" style={{ background: story.coverAccent }}>
               {panel.imageUrl ? <img alt={panel.title} className="reader-panel__image" src={panel.imageUrl} /> : null}
-              <div className="reader-panel__badge">
-                <strong>{panel.title}</strong>
-              </div>
             </div>
             <div className="reader-panel__body">
-              <p className="eyebrow">Scene text</p>
               <h2>{panel.title}</h2>
               <p>{panel.panelText}</p>
-              <details className="prompt-details">
-                <summary>Illustration prompt</summary>
-                <p className="muted-text">{panel.imagePrompt}</p>
-              </details>
-              <div className="panel-card__actions">
-                <Button onClick={() => handleGenerateSinglePanel(panel.id)} variant="ghost">
-                  {panelLoading[panel.id] ? "Generating panel..." : panel.imageUrl ? "Regenerate panel art" : "Generate panel art"}
-                </Button>
-              </div>
             </div>
           </article>
         ))}
@@ -252,14 +193,35 @@ export default function StoryPage() {
       <section className="panel-card">
         <p className="eyebrow">Full story text</p>
         <h2>Read it straight through</h2>
-        <p>{story.fullText}</p>
-        <div className="panel-card__actions">
-          <Link className="section-link" href="/create">
-            Create another story
-          </Link>
-          <Link className="section-link" href="/">
+        <div className="full-story-text">
+          {story.panels.map((panel) => (
+            <p key={`full-${panel.id}`}>{panel.panelText}</p>
+          ))}
+        </div>
+        <div className="panel-card__actions panel-card__actions--spaced">
+          <Button href="/create">Create another story</Button>
+          <Button href="/" variant="secondary">
             Return home
-          </Link>
+          </Button>
+        </div>
+      </section>
+
+      <section className="panel-card">
+        <p className="eyebrow">Scene artwork</p>
+        <h2>Illustrations</h2>
+        <p className="muted-text">
+          Generate brand-new artwork for every scene at once. Saved images load instantly the next time you open the
+          story.
+        </p>
+        {artStatusMessage ? <p className="media-status">{artStatusMessage}</p> : null}
+        <div className="panel-card__actions">
+          <Button onClick={handleGenerateArtwork} disabled={isGeneratingArt}>
+            {isGeneratingArt
+              ? "Generating artwork..."
+              : story.panels.some((panel) => panel.imageUrl)
+                ? "Regenerate all panel art"
+                : "Generate all panel art"}
+          </Button>
         </div>
       </section>
     </PageShell>

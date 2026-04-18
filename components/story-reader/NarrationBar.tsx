@@ -6,7 +6,7 @@ import type { StoryRecord } from "@/lib/types/story";
 
 type NarrationBarProps = {
   story: StoryRecord;
-  onNarrationReady?: (audioUrl: string) => void;
+  onNarrationReady?: (audioUrl: string, voicePreset: StoryRecord["voicePreset"]) => void;
 };
 
 function rateForVoicePreset(voicePreset: StoryRecord["voicePreset"]): number {
@@ -84,14 +84,29 @@ export function NarrationBar({ story, onNarrationReady }: NarrationBarProps) {
 
   async function startNarration() {
     setStatusMessage("");
-    const reusableAudioUrl = audioUrl || story.narrationAudioUrl || "";
+
+    // Only reuse saved narration if it matches the currently selected voice preset.
+    const savedAudio = audioUrl || story.narrationAudioUrl || "";
+    const savedVoiceMatches =
+      !story.narrationVoicePreset || story.narrationVoicePreset === story.voicePreset;
+    const reusableAudioUrl = savedAudio && savedVoiceMatches ? savedAudio : "";
 
     if (reusableAudioUrl) {
       const existingAudio = audioRef.current?.src === reusableAudioUrl ? audioRef.current : new Audio(reusableAudioUrl);
       attachAudio(existingAudio);
-      await existingAudio.play();
-      setStatusMessage("Playing saved narration.");
+      try {
+        await existingAudio.play();
+        setStatusMessage("Playing saved narration.");
+      } catch (error) {
+        console.error("Failed to play saved narration:", error);
+        setStatusMessage("Tap play again to start narration.");
+      }
       return;
+    }
+
+    // Make sure the browser speech synth isn't already speaking from a previous attempt.
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
     }
 
     setIsApiLoading(true);
@@ -105,6 +120,7 @@ export function NarrationBar({ story, onNarrationReady }: NarrationBarProps) {
         body: JSON.stringify({
           input: story.fullText,
           voicePreset: story.voicePreset,
+          storyId: story.id,
         }),
       });
 
@@ -112,11 +128,16 @@ export function NarrationBar({ story, onNarrationReady }: NarrationBarProps) {
         const blob = await response.blob();
         const nextAudioUrl = await blobToDataUrl(blob);
         setAudioUrl(nextAudioUrl);
-        onNarrationReady?.(nextAudioUrl);
+        onNarrationReady?.(nextAudioUrl, story.voicePreset);
         const audio = new Audio(nextAudioUrl);
         attachAudio(audio);
-        await audio.play();
-        setStatusMessage("Playing AI-generated narration.");
+        try {
+          await audio.play();
+          setStatusMessage("Playing AI-generated narration.");
+        } catch (error) {
+          console.error("Failed to autoplay generated narration:", error);
+          setStatusMessage("Tap play again to start narration.");
+        }
         return;
       }
     } catch {

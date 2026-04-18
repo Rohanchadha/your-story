@@ -3,6 +3,11 @@
 import type { StoryMode } from "@/lib/types/story";
 import { storyModes } from "@/lib/constants/story-config";
 
+const modeIcons: Record<StoryMode, string> = {
+  adventure: "/images/icons/adventure.svg",
+  educational: "/images/icons/educational.svg",
+};
+
 type StoryModeToggleProps = {
   value: StoryMode;
   onChange: (value: StoryMode) => void;
@@ -24,6 +29,7 @@ export function StoryModeToggle({ value, onChange }: StoryModeToggleProps) {
             onClick={() => onChange(mode.value)}
             type="button"
           >
+            <img src={modeIcons[mode.value]} alt="" className="choice-card__icon" aria-hidden="true" />
             <strong>{mode.label}</strong>
             <span>{mode.description}</span>
           </button>

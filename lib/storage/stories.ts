@@ -12,6 +12,7 @@ type StoryMediaOverride = {
   storyId: string;
   coverImageUrl?: string;
   narrationAudioUrl?: string;
+  narrationVoicePreset?: StoryRecord["voicePreset"];
   panelImages?: Record<string, string>;
   updatedAt: string;
 };
@@ -69,6 +70,7 @@ function applyMediaOverride(story: StoryRecord): StoryRecord {
     ...story,
     coverImageUrl: media.coverImageUrl ?? story.coverImageUrl,
     narrationAudioUrl: media.narrationAudioUrl ?? story.narrationAudioUrl,
+    narrationVoicePreset: media.narrationVoicePreset ?? story.narrationVoicePreset,
     panels: story.panels.map((panel) => ({
       ...panel,
       imageUrl: media.panelImages?.[panel.id] ?? panel.imageUrl,
@@ -156,7 +158,7 @@ export function persistStoryCoverImage(storyId: string, coverImageUrl: string): 
   return getStoryById(storyId);
 }
 
-export function persistStoryNarrationAudio(storyId: string, narrationAudioUrl: string): StoryRecord | undefined {
+export function persistStoryNarrationAudio(storyId: string, narrationAudioUrl: string, voicePreset?: StoryRecord["voicePreset"]): StoryRecord | undefined {
   const story = getStoryById(storyId);
   if (!story) return undefined;
 
@@ -165,6 +167,7 @@ export function persistStoryNarrationAudio(storyId: string, narrationAudioUrl: s
     storyId,
     coverImageUrl: existing?.coverImageUrl ?? story.coverImageUrl,
     narrationAudioUrl,
+    narrationVoicePreset: voicePreset ?? existing?.narrationVoicePreset ?? story.voicePreset,
     panelImages: existing?.panelImages ?? {},
     updatedAt: new Date().toISOString(),
   });

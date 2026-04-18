@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Lightbulb glow background -->
+  <circle cx="32" cy="32" r="28" fill="#eef7ff" stroke="#b8d8f0" stroke-width="2"/>
+  <!-- Lightbulb -->
+  <path d="M24 36 Q24 24 32 18 Q40 24 40 36Z" fill="#ffd166" opacity="0.8"/>
+  <path d="M24 36 Q24 24 32 18 Q40 24 40 36Z" fill="none" stroke="#e6b830" stroke-width="1.5"/>
+  <rect x="26" y="36" width="12" height="4" rx="1" fill="#e6b830"/>
+  <rect x="27" y="40" width="10" height="2" rx="1" fill="#d4a520"/>
+  <rect x="28" y="42" width="8" height="2" rx="1" fill="#c49410"/>
+  <!-- Sparkle rays -->
+  <line x1="32" y1="8" x2="32" y2="13" stroke="#7eb8c9" stroke-width="2" stroke-linecap="round"/>
+  <line x1="18" y1="20" x2="22" y2="23" stroke="#7eb8c9" stroke-width="2" stroke-linecap="round"/>
+  <line x1="46" y1="20" x2="42" y2="23" stroke="#7eb8c9" stroke-width="2" stroke-linecap="round"/>
+  <line x1="14" y1="32" x2="19" y2="32" stroke="#7eb8c9" stroke-width="2" stroke-linecap="round"/>
+  <line x1="50" y1="32" x2="45" y2="32" stroke="#7eb8c9" stroke-width="2" stroke-linecap="round"/>
+  <!-- Book at bottom -->
+  <path d="M20 50 L32 46 L44 50 L44 56 L32 52 L20 56Z" fill="#7eb8c9" opacity="0.6"/>
+  <line x1="32" y1="46" x2="32" y2="52" stroke="#5a9bb0" stroke-width="1"/>
+</svg>

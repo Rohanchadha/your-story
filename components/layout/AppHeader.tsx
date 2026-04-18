@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const navigationLinks = [
@@ -11,9 +12,9 @@ export function AppHeader() {
   return (
     <header className="app-header">
       <Link className="brand-mark" href="/">
-        <span className="brand-mark__spark" aria-hidden="true" />
+        <Image src="/images/logo.svg" alt="StorySpark logo" width={32} height={32} className="brand-mark__logo" />
         <span>
-          <strong>Lullaby Lane</strong>
+          <strong>StorySpark</strong>
           <small>Story studio for families</small>
         </span>
       </Link>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { hasOpenAIKey } from "@/lib/openai/client";
 import { generateStoryPlanWithOpenAI } from "@/lib/openai/story-generation";
+import { saveStoryJson } from "@/lib/storage/server-artifacts";
 import { createStoryRecordFromContent, generateStoryRecord } from "@/lib/story/generate-story";
 import type { StoryGenerateRequest } from "@/lib/types/story";
 
@@ -48,6 +49,8 @@ export async function POST(request: Request) {
       console.error("Falling back to local story generation:", error);
     }
   }
+
+  await saveStoryJson(story);
 
   return NextResponse.json({ story });
 }

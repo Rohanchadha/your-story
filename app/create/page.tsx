@@ -34,23 +34,38 @@ const illustratingMessages = [
 async function generateArtworkForStory(story: StoryRecord): Promise<StoryRecord> {
   const panelImages: Record<string, string> = {};
 
-  for (const panel of story.panels) {
-    const response = await fetch("/api/media/image", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: panel.imagePrompt,
-      }),
-    });
+  const results = await Promise.all(
+    story.panels.map(async (panel) => {
+      try {
+        const response = await fetch("/api/media/image", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: panel.imagePrompt,
+            storyId: story.id,
+            panelId: panel.id,
+          }),
+        });
 
-    if (!response.ok) {
-      continue;
+        if (!response.ok) {
+          return null;
+        }
+
+        const payload = (await response.json()) as ImagePayload;
+        return { panelId: panel.id, imageUrl: payload.imageUrl };
+      } catch (error) {
+        console.error(`Failed to generate art for panel ${panel.id}:`, error);
+        return null;
+      }
+    }),
+  );
+
+  for (const result of results) {
+    if (result) {
+      panelImages[result.panelId] = result.imageUrl;
     }
-
-    const payload = (await response.json()) as ImagePayload;
-    panelImages[panel.id] = payload.imageUrl;
   }
 
   const nextStory = {
@@ -202,26 +217,31 @@ export default function CreatePage() {
       <section className="create-stage">
         <div className="create-stage__intro">
           <p className="eyebrow">Create story</p>
-          <h1>Build a premium bedtime comic in one smooth pass.</h1>
+          <h1>Craft a magical story in minutes.</h1>
           <p>
-            Start with a spark, choose the visual world, and we&apos;ll generate the story text and artwork together so
-            the reader opens feeling complete.
+            Pick a theme, choose an art style, and we&apos;ll weave the narrative and illustrations together into a
+            ready-to-read bedtime comic.
           </p>
           <div className="hero-section__chips">
-            <span>300-400 words</span>
-            <span>Age-aware storytelling</span>
-            <span>Illustrated comic panels</span>
-            <span>Printable later</span>
+            <span>🎨 Illustrated panels</span>
+            <span>🗣️ Narrated aloud</span>
+            <span>📖 Age-aware</span>
+            <span>🖨️ Printable</span>
           </div>
         </div>
 
         <aside className="create-stage__summary">
           <p className="eyebrow">Live preview</p>
           <div className="create-stage__poster" data-style={stylePreset}>
+            <img
+              src={`/images/styles/${stylePreset}.png`}
+              alt={selectedStyle?.label ?? "Style preview"}
+              className="create-stage__poster-image"
+            />
             <span>{mode === "educational" ? "Learning Story" : "Adventure Story"}</span>
             <strong>{prompt.trim() || "Your next magical family story"}</strong>
             <p>
-              {selectedStyle?.label} in {selectedLanguage?.label}, tuned for level {level}.
+              {selectedStyle?.label} in {selectedLanguage?.label}, level {level}.
             </p>
           </div>
           <div className="create-stage__meta">
@@ -268,8 +288,7 @@ export default function CreatePage() {
           <p className="eyebrow">Story setup</p>
           <h2>{mode === "adventure" ? "Adventure story" : "Educational story"}</h2>
           <p className="muted-text">
-            The story opens with generated illustrations, so parents land straight in a finished storytelling
-            experience instead of empty scenes.
+            Your story will open with beautiful illustrations and narration — ready for bedtime the moment it&apos;s done.
           </p>
           <div className="settings-grid">
             <p>
@@ -301,7 +320,7 @@ export default function CreatePage() {
           ) : null}
           {statusMessage ? <p className="media-status">{statusMessage}</p> : null}
           {errorMessage ? <p className="error-text">{errorMessage}</p> : null}
-          <div className="panel-card__actions">
+          <div className="panel-card__actions panel-card__actions--spaced">
             <Button disabled={!prompt.trim() || isGenerating || isArtworkGenerating} onClick={handleGenerateStory}>
               {isGenerating || isArtworkGenerating ? "Generating Story..." : "Generate Story"}
             </Button>
