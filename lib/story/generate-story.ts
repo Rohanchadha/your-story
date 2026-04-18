@@ -10,6 +10,59 @@ type StoryContent = {
   paragraphs: string[];
 };
 
+function splitTextIntoChunks(text: string, desiredCount: number): string[] {
+  const cleaned = text.trim().replace(/\s+/g, " ");
+  if (!cleaned) return [];
+
+  const sentences = cleaned
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
+
+  if (sentences.length <= desiredCount) {
+    return sentences;
+  }
+
+  const chunkSize = Math.ceil(sentences.length / desiredCount);
+  const chunks: string[] = [];
+
+  for (let index = 0; index < sentences.length; index += chunkSize) {
+    chunks.push(sentences.slice(index, index + chunkSize).join(" ").trim());
+  }
+
+  return chunks;
+}
+
+export function normalizeParagraphs(paragraphs: string[], fallbackText?: string, desiredCount = 6): string[] {
+  const trimmed = paragraphs.map((item) => item.trim()).filter(Boolean);
+  const fallbackChunks = fallbackText ? splitTextIntoChunks(fallbackText, desiredCount) : [];
+
+  if (trimmed.length === desiredCount) {
+    return trimmed;
+  }
+
+  if (trimmed.length === 1) {
+    const expanded = splitTextIntoChunks(trimmed[0], desiredCount);
+    if (expanded.length >= desiredCount) {
+      return expanded.slice(0, desiredCount);
+    }
+  }
+
+  const merged = [...trimmed];
+  for (const chunk of fallbackChunks) {
+    if (merged.length >= desiredCount) break;
+    if (!merged.includes(chunk)) {
+      merged.push(chunk);
+    }
+  }
+
+  while (merged.length < desiredCount) {
+    merged.push(merged[merged.length - 1] ?? trimmed[0] ?? "A gentle story moment unfolds.");
+  }
+
+  return merged.slice(0, desiredCount);
+}
+
 function normalizePrompt(prompt: string): string {
   return prompt.trim().replace(/\s+/g, " ");
 }
@@ -106,7 +159,7 @@ function buildPanelTitle(index: number, mode: StoryGenerateRequest["mode"]): str
 }
 
 function buildPanels(storyId: string, paragraphs: string[], request: StoryGenerateRequest): StoryPanel[] {
-  return paragraphs.map((paragraph, index) => {
+  return normalizeParagraphs(paragraphs).map((paragraph, index) => {
     const title = buildPanelTitle(index, request.mode);
     return {
       id: `${storyId}_panel_${index + 1}`,
@@ -125,6 +178,7 @@ export function createStoryRecordFromContent(request: StoryGenerateRequest, cont
   const now = new Date().toISOString();
   const childSnapshot = request.childContext ?? null;
   const coverAccent = accentFromMode(request.mode);
+  const normalizedParagraphs = normalizeParagraphs(content.paragraphs, content.paragraphs.join(" "));
 
   return {
     id: storyId,
@@ -139,9 +193,9 @@ export function createStoryRecordFromContent(request: StoryGenerateRequest, cont
     coverAccent,
     coverImageUrl: createCoverArtDataUrl(content.title, content.summary, request.stylePreset, coverAccent),
     prompt: request.prompt,
-    fullText: content.paragraphs.join(" "),
+    fullText: normalizedParagraphs.join(" "),
     childSnapshot,
-    panels: buildPanels(storyId, content.paragraphs, request),
+    panels: buildPanels(storyId, normalizedParagraphs, request),
     origin: "generated",
     createdAt: now,
     updatedAt: now,

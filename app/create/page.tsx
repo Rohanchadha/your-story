@@ -2,26 +2,82 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PageShell } from "@/components/layout/PageShell";
-import { ChildPicker } from "@/components/create/ChildPicker";
 import { GenerateIdeaButton } from "@/components/create/GenerateIdeaButton";
 import { StoryModeToggle } from "@/components/create/StoryModeToggle";
 import { StoryPromptInput } from "@/components/create/StoryPromptInput";
 import { StorySettingsForm } from "@/components/create/StorySettingsForm";
+import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/shared/Button";
-import { Card } from "@/components/shared/Card";
-import { getChildren } from "@/lib/storage/children";
+import { stylePresets, supportedLanguages, voicePresets } from "@/lib/constants/story-config";
 import { pushRecentStory } from "@/lib/storage/recents";
-import { saveGeneratedStory } from "@/lib/storage/stories";
-import { getAgeFromDateOfBirth } from "@/lib/utils/date";
-import type { ChildProfile } from "@/lib/types/child";
+import { persistStoryCoverImage, persistStoryPanelImages, saveGeneratedStory } from "@/lib/storage/stories";
 import type { StoryLanguage, StoryMode, StoryRecord, StylePreset, VoicePreset } from "@/lib/types/story";
+
+type ImagePayload = {
+  imageUrl: string;
+};
+
+const writingMessages = [
+  "Sketching the story arc...",
+  "Finding a warm opening scene...",
+  "Shaping age-appropriate language...",
+  "Polishing the comic panel beats...",
+];
+
+const illustratingMessages = [
+  "Painting the story panels...",
+  "Adding character warmth and color...",
+  "Composing the first comic scenes...",
+  "Saving artwork for instant replays...",
+];
+
+async function generateArtworkForStory(story: StoryRecord): Promise<StoryRecord> {
+  const panelImages: Record<string, string> = {};
+
+  for (const panel of story.panels) {
+    const response = await fetch("/api/media/image", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: panel.imagePrompt,
+      }),
+    });
+
+    if (!response.ok) {
+      continue;
+    }
+
+    const payload = (await response.json()) as ImagePayload;
+    panelImages[panel.id] = payload.imageUrl;
+  }
+
+  const nextStory = {
+    ...story,
+    coverImageUrl: Object.values(panelImages)[0] ?? story.coverImageUrl,
+    panels: story.panels.map((panel) => ({
+      ...panel,
+      imageUrl: panelImages[panel.id] ?? panel.imageUrl,
+    })),
+  };
+
+  const persistedPanels = Object.keys(panelImages).length ? persistStoryPanelImages(story.id, panelImages) : undefined;
+  if (Object.values(panelImages)[0]) {
+    persistStoryCoverImage(story.id, Object.values(panelImages)[0]);
+  }
+
+  return persistedPanels
+    ? {
+        ...persistedPanels,
+        coverImageUrl: Object.values(panelImages)[0] ?? persistedPanels.coverImageUrl,
+      }
+    : nextStory;
+}
 
 export default function CreatePage() {
   const router = useRouter();
-  const [childrenProfiles, setChildrenProfiles] = useState<ChildProfile[]>([]);
   const [mode, setMode] = useState<StoryMode>("adventure");
-  const [selectedChildId, setSelectedChildId] = useState("");
   const [prompt, setPrompt] = useState("");
   const [language, setLanguage] = useState<StoryLanguage>("english");
   const [level, setLevel] = useState(4);
@@ -30,17 +86,37 @@ export default function CreatePage() {
   const [ideas, setIdeas] = useState<string[]>([]);
   const [isIdeaLoading, setIsIdeaLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isArtworkGenerating, setIsArtworkGenerating] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [generationPhase, setGenerationPhase] = useState<"idle" | "writing" | "illustrating">("idle");
+  const [generationMessageIndex, setGenerationMessageIndex] = useState(0);
+
+  const selectedStyle = stylePresets.find((item) => item.value === stylePreset);
+  const selectedVoice = voicePresets.find((item) => item.value === voicePreset);
+  const selectedLanguage = supportedLanguages.find((item) => item.value === language);
 
   useEffect(() => {
-    setChildrenProfiles(getChildren());
-  }, []);
+    if (generationPhase === "idle") {
+      setStatusMessage("");
+      setGenerationMessageIndex(0);
+      return;
+    }
 
-  const selectedChild = childrenProfiles.find((child) => child.id === selectedChildId);
+    const messages = generationPhase === "writing" ? writingMessages : illustratingMessages;
+    setStatusMessage(messages[generationMessageIndex % messages.length] ?? "");
+
+    const interval = window.setInterval(() => {
+      setGenerationMessageIndex((current) => current + 1);
+    }, 2200);
+
+    return () => window.clearInterval(interval);
+  }, [generationPhase, generationMessageIndex]);
 
   async function handleGenerateIdeas() {
     setIsIdeaLoading(true);
     setErrorMessage("");
+    setStatusMessage("");
 
     try {
       const response = await fetch("/api/stories/generate-idea", {
@@ -52,15 +128,7 @@ export default function CreatePage() {
           mode,
           language,
           level,
-          childContext: selectedChild
-            ? {
-                name: selectedChild.name,
-                nickname: selectedChild.nickname,
-                age: getAgeFromDateOfBirth(selectedChild.dateOfBirth),
-                city: selectedChild.city,
-                country: selectedChild.country,
-              }
-            : null,
+          childContext: null,
         }),
       });
 
@@ -85,6 +153,8 @@ export default function CreatePage() {
 
     setIsGenerating(true);
     setErrorMessage("");
+    setGenerationPhase("writing");
+    setGenerationMessageIndex(0);
 
     try {
       const response = await fetch("/api/stories", {
@@ -99,15 +169,7 @@ export default function CreatePage() {
           level,
           stylePreset,
           voicePreset,
-          childContext: selectedChild
-            ? {
-                name: selectedChild.name,
-                nickname: selectedChild.nickname,
-                age: getAgeFromDateOfBirth(selectedChild.dateOfBirth),
-                city: selectedChild.city,
-                country: selectedChild.country,
-              }
-            : null,
+          childContext: null,
         }),
       });
 
@@ -116,97 +178,139 @@ export default function CreatePage() {
       }
 
       const payload = (await response.json()) as { story: StoryRecord };
-      saveGeneratedStory(payload.story);
-      pushRecentStory(payload.story.id);
-      router.push(`/stories/${payload.story.id}`);
+      const savedStory = saveGeneratedStory(payload.story);
+      setGenerationPhase("illustrating");
+      setGenerationMessageIndex(0);
+      setIsArtworkGenerating(true);
+
+      const storyWithArt = await generateArtworkForStory(savedStory);
+      saveGeneratedStory(storyWithArt);
+      pushRecentStory(storyWithArt.id);
+      router.push(`/stories/${storyWithArt.id}`);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Story generation failed. Please try again.");
+      setGenerationPhase("idle");
     } finally {
       setIsGenerating(false);
+      setIsArtworkGenerating(false);
+      setGenerationPhase("idle");
     }
   }
 
   return (
     <PageShell>
-      <section className="page-title">
-        <div>
+      <section className="create-stage">
+        <div className="create-stage__intro">
           <p className="eyebrow">Create story</p>
-          <h1>Shape a new family story in one calm flow.</h1>
+          <h1>Build a premium bedtime comic in one smooth pass.</h1>
           <p>
-            This version now generates a complete story record locally through our server routes, so you can move from
-            prompt to reader without mock placeholders.
+            Start with a spark, choose the visual world, and we&apos;ll generate the story text and artwork together so
+            the reader opens feeling complete.
           </p>
+          <div className="hero-section__chips">
+            <span>300-400 words</span>
+            <span>Age-aware storytelling</span>
+            <span>Illustrated comic panels</span>
+            <span>Printable later</span>
+          </div>
         </div>
+
+        <aside className="create-stage__summary">
+          <p className="eyebrow">Live preview</p>
+          <div className="create-stage__poster" data-style={stylePreset}>
+            <span>{mode === "educational" ? "Learning Story" : "Adventure Story"}</span>
+            <strong>{prompt.trim() || "Your next magical family story"}</strong>
+            <p>
+              {selectedStyle?.label} in {selectedLanguage?.label}, tuned for level {level}.
+            </p>
+          </div>
+          <div className="create-stage__meta">
+            <p>
+              <strong>Illustration</strong>
+              <br />
+              {selectedStyle?.label}
+            </p>
+            <p>
+              <strong>Narration</strong>
+              <br />
+              {selectedVoice?.label}
+            </p>
+          </div>
+        </aside>
       </section>
 
-      <Card className="panel-card">
-        <div className="form-stack">
-          <StoryModeToggle value={mode} onChange={setMode} />
-          <ChildPicker childrenProfiles={childrenProfiles} onChange={setSelectedChildId} value={selectedChildId} />
-          <StoryPromptInput mode={mode} onChange={setPrompt} value={prompt} />
-          <GenerateIdeaButton
-            ideas={ideas}
-            isLoading={isIdeaLoading}
-            mode={mode}
-            onChoose={setPrompt}
-            onGenerate={handleGenerateIdeas}
-          />
-          <StorySettingsForm
-            language={language}
-            level={level}
-            onLanguageChange={setLanguage}
-            onLevelChange={setLevel}
-            onStylePresetChange={setStylePreset}
-            onVoicePresetChange={setVoicePreset}
-            stylePreset={stylePreset}
-            voicePreset={voicePreset}
-          />
-
-          <Card className="cta-card">
-            <p className="eyebrow">Preview</p>
-            <h2>{mode === "adventure" ? "Adventure story" : "Educational story"}</h2>
-            <p className="muted-text">
-              {selectedChild ? `Personalized gently for ${selectedChild.name}.` : "No child selected. This story will stay general."}
-            </p>
-            <div className="settings-grid">
-              <p>
-                <strong>Language</strong>
-                <br />
-                {language.charAt(0).toUpperCase() + language.slice(1)}
-              </p>
-              <p>
-                <strong>Level</strong>
-                <br />
-                {level}
-              </p>
-              <p>
-                <strong>Style</strong>
-                <br />
-                {stylePreset.replaceAll("-", " ")}
-              </p>
-              <p>
-                <strong>Voice</strong>
-                <br />
-                {voicePreset.replaceAll("-", " ")}
-              </p>
-            </div>
-            {prompt.trim() ? (
-              <p className="muted-text">
-                <strong>Prompt preview:</strong> {prompt}
-              </p>
-            ) : null}
-            {errorMessage ? <p className="error-text">{errorMessage}</p> : null}
-            <div className="panel-card__actions">
-              <Button disabled={!prompt.trim() || isGenerating} onClick={handleGenerateStory}>
-                {isGenerating ? "Generating Story..." : "Generate Story"}
-              </Button>
-              <Button href="/children" variant="ghost">
-                Manage Child Profiles
-              </Button>
-            </div>
-          </Card>
+      <section className="create-grid">
+        <div className="panel-card create-flow">
+          <div className="form-stack">
+            <StoryModeToggle value={mode} onChange={setMode} />
+            <StoryPromptInput mode={mode} onChange={setPrompt} value={prompt} />
+            <GenerateIdeaButton
+              ideas={ideas}
+              isLoading={isIdeaLoading}
+              mode={mode}
+              onChoose={setPrompt}
+              onGenerate={handleGenerateIdeas}
+            />
+            <StorySettingsForm
+              language={language}
+              level={level}
+              onLanguageChange={setLanguage}
+              onLevelChange={setLevel}
+              onStylePresetChange={setStylePreset}
+              onVoicePresetChange={setVoicePreset}
+              stylePreset={stylePreset}
+              voicePreset={voicePreset}
+            />
+          </div>
         </div>
-      </Card>
+
+        <div className="panel-card create-preview-panel">
+          <p className="eyebrow">Story setup</p>
+          <h2>{mode === "adventure" ? "Adventure story" : "Educational story"}</h2>
+          <p className="muted-text">
+            The story opens with generated illustrations, so parents land straight in a finished storytelling
+            experience instead of empty scenes.
+          </p>
+          <div className="settings-grid">
+            <p>
+              <strong>Language</strong>
+              <br />
+              {selectedLanguage?.label}
+            </p>
+            <p>
+              <strong>Level</strong>
+              <br />
+              {level}
+            </p>
+            <p>
+              <strong>Style</strong>
+              <br />
+              {selectedStyle?.label}
+            </p>
+            <p>
+              <strong>Voice</strong>
+              <br />
+              {selectedVoice?.label}
+            </p>
+          </div>
+          {prompt.trim() ? (
+            <div className="create-preview-note">
+              <p className="eyebrow">Prompt preview</p>
+              <p>{prompt}</p>
+            </div>
+          ) : null}
+          {statusMessage ? <p className="media-status">{statusMessage}</p> : null}
+          {errorMessage ? <p className="error-text">{errorMessage}</p> : null}
+          <div className="panel-card__actions">
+            <Button disabled={!prompt.trim() || isGenerating || isArtworkGenerating} onClick={handleGenerateStory}>
+              {isGenerating || isArtworkGenerating ? "Generating Story..." : "Generate Story"}
+            </Button>
+            <Button href="/library" variant="ghost">
+              Browse existing stories
+            </Button>
+          </div>
+        </div>
+      </section>
     </PageShell>
   );
 }

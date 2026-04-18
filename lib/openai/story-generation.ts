@@ -1,4 +1,5 @@
 import { getOpenAIClient } from "@/lib/openai/client";
+import { normalizeParagraphs } from "@/lib/story/generate-story";
 import type { StoryGenerateRequest } from "@/lib/types/story";
 
 type StoryPlan = {
@@ -53,14 +54,17 @@ export async function generateStoryPlanWithOpenAI(input: StoryGenerateRequest): 
 
   const raw = response.output_text;
   const parsed = JSON.parse(extractJson(raw)) as Partial<StoryPlan>;
+  const normalizedParagraphs = normalizeParagraphs(
+    Array.isArray(parsed.paragraphs) ? parsed.paragraphs.filter((item): item is string => typeof item === "string") : [],
+    [parsed.summary, response.output_text].filter(Boolean).join(" "),
+  );
 
   if (
     !parsed.title ||
     !parsed.summary ||
     !parsed.category ||
-    !Array.isArray(parsed.paragraphs) ||
-    parsed.paragraphs.length !== 6 ||
-    parsed.paragraphs.some((item) => typeof item !== "string" || !item.trim())
+    normalizedParagraphs.length !== 6 ||
+    normalizedParagraphs.some((item) => !item.trim())
   ) {
     throw new Error("Story plan returned from OpenAI did not match the expected shape.");
   }
@@ -69,6 +73,6 @@ export async function generateStoryPlanWithOpenAI(input: StoryGenerateRequest): 
     title: parsed.title.trim(),
     summary: parsed.summary.trim(),
     category: parsed.category.trim(),
-    paragraphs: parsed.paragraphs.map((item) => item.trim()),
+    paragraphs: normalizedParagraphs,
   };
 }

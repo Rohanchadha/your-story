@@ -1,5 +1,5 @@
 import { buildPanelPrompt } from "@/lib/imagegen/build-panel-prompt";
-import { createCoverArtDataUrl, createPanelArtDataUrl } from "@/lib/story/build-panel-art";
+import { createPanelArtDataUrl } from "@/lib/story/build-panel-art";
 import type { StoryMode, StoryPanel, StoryRecord, StorySummary, StylePreset } from "@/lib/types/story";
 
 function createPanels(
@@ -31,12 +31,7 @@ export const seededStoryRecords: StoryRecord[] = [
     stylePreset: "soft-watercolor",
     voicePreset: "warm-parent",
     coverAccent: "#ffd6a6",
-    coverImageUrl: createCoverArtDataUrl(
-      "The Sunbeam Train",
-      "A bright little engine helps two siblings understand how the planets travel around the sun.",
-      "soft-watercolor",
-      "#ffd6a6",
-    ),
+    coverImageUrl: "/images/stories/the-sunbeam-train.png",
     prompt: "Explain the solar system through a warm train adventure.",
     fullText:
       "On a golden evening, Mina and Kabir heard a tiny whistle near their window and found the Sunbeam Train glowing on the moonlit tracks. Conductor Suraj bowed and promised to show them how the solar system moves together like a careful parade. First, the train circled the sun, who stood at the center like a warm station lamp. Mercury rushed quickly, Venus shimmered softly, and Earth spun with blue oceans sparkling in the dark. Mars rolled by in rusty red boots, while giant Jupiter kept everyone feeling safe with his strong, swirling presence. Saturn floated elegantly, wearing rings like hula hoops made of light. Farther away, Uranus and Neptune glided slowly, calm and chilly in the deep dark. By the time the train returned home, Mina and Kabir understood that the planets are not lost at all. They each follow a path around the sun, moving at their own pace, yet staying part of one beautiful cosmic family.",
@@ -82,12 +77,7 @@ export const seededStoryRecords: StoryRecord[] = [
     stylePreset: "storybook-cartoon",
     voicePreset: "gentle-grandma",
     coverAccent: "#d5f5e8",
-    coverImageUrl: createCoverArtDataUrl(
-      "The Bridge of Kind Hands",
-      "A village learns that every small helpful act can build something beautiful together.",
-      "storybook-cartoon",
-      "#d5f5e8",
-    ),
+    coverImageUrl: "/images/stories/the-bridge-of-kind-hands.png",
     prompt: "Tell a value-based story about helpfulness creating something magical.",
     fullText:
       "In the village of Neem Hollow, a stream separated the homes from the school garden, and after a storm the wooden bridge had washed away. Everyone worried because the children could no longer reach the flowers they had planted. Little Tara began by carrying a basket of rope to the riverbank. Soon her neighbor brought smooth stones, then a baker carried warm bread for the workers, and then even the youngest children gathered twigs and sang cheerful songs to keep tired hands moving. No one act was grand enough to solve the problem alone, but each small kindness made the next one easier. A carpenter shaped the rails, grandparents tied colorful ribbons, and the gardeners planted mint along the path. By sunset a new bridge curved across the water, stronger and prettier than the one before. Tara stepped onto the planks and realized the bridge had been built from more than wood and rope. It had been built from kind hands, thoughtful hearts, and the joy of helping without waiting to be asked.",
@@ -133,12 +123,7 @@ export const seededStoryRecords: StoryRecord[] = [
     stylePreset: "cozy-anime",
     voicePreset: "warm-parent",
     coverAccent: "#dfe7ff",
-    coverImageUrl: createCoverArtDataUrl(
-      "Moonlight Laddoo Mystery",
-      "A bedtime adventure where soft clues and giggles help a family find a missing treat.",
-      "cozy-anime",
-      "#dfe7ff",
-    ),
+    coverImageUrl: "/images/stories/moonlight-laddoo-mystery.png",
     prompt: "A cozy bedtime mystery about a missing laddoo.",
     fullText:
       "One sleepy night, a silver moonbeam slipped into Nani's kitchen just as everyone noticed that the last laddoo from the brass tin was missing. Instead of worrying, little Meher decided to become a moonlight detective. She found a tiny trail of sweet crumbs near the window, a round smudge on the floor, and one giggly cat hiding under the table. Nani followed with a lantern, Dadu hummed a detective tune, and together they tiptoed through the courtyard where jasmine flowers nodded in the breeze. Behind the tulsi pot they discovered not a thief, but a baby monkey clutching the laddoo and looking terribly embarrassed. Meher knelt down and offered half of her own biscuit, and the monkey carefully set the laddoo back into her hands. Everyone laughed so softly that even the moon seemed to giggle. Nani cut the laddoo into tiny pieces and shared it with the family before bed. Meher fell asleep proud of her gentle mystery solving, knowing that kindness can finish even the sweetest little adventure.",
@@ -184,12 +169,7 @@ export const seededStoryRecords: StoryRecord[] = [
     stylePreset: "minimal-pastel",
     voicePreset: "playful-friend",
     coverAccent: "#fde3ef",
-    coverImageUrl: createCoverArtDataUrl(
-      "The Number Garden",
-      "A playful counting story where every flower patch unlocks a tiny math surprise.",
-      "minimal-pastel",
-      "#fde3ef",
-    ),
+    coverImageUrl: "/images/stories/the-number-garden.png",
     prompt: "Explain early counting through a cheerful flower garden.",
     fullText:
       "When Pihu stepped into the Number Garden, the gate whispered, \"Count kindly, and every patch will bloom.\" In the first patch she found one sunflower standing tall like a tiny golden lighthouse. In the next patch there were two butterflies fluttering above two pink roses. Soon she counted three busy bees, four smooth pebbles around a pond, and five tiny mushrooms under a fern umbrella. Each time she counted slowly, the garden answered by opening another path. Pihu learned that numbers are not just symbols on a page. They help us notice how many things are around us, how groups can grow, and how patterns appear. By the end of the walk, she had counted all the way to ten and back again while the flowers swayed proudly around her. When she left the garden, she no longer felt that numbers were stiff or scary. They felt like friendly little helpers that could turn the whole world into a colorful puzzle waiting to be understood.",

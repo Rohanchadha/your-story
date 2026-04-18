@@ -42,12 +42,11 @@ export default function PrintPage() {
       </section>
 
       <section className="print-stack">
-        {story.panels.map((panel, index) => (
+        {story.panels.map((panel) => (
           <article className="print-card" key={panel.id}>
             <div className="print-card__art" style={{ background: story.coverAccent }}>
               {panel.imageUrl ? <img alt={panel.title} className="reader-panel__image" src={panel.imageUrl} /> : null}
               <div className="reader-panel__badge">
-                <span>Panel {index + 1}</span>
                 <strong>{panel.title}</strong>
               </div>
             </div>

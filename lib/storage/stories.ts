@@ -1,6 +1,7 @@
 import { readFromStorage, writeToStorage } from "@/lib/storage/browser-storage";
 import { getFavoriteStoryIds } from "@/lib/storage/favorites";
 import { getRecentStoryIds } from "@/lib/storage/recents";
+import { normalizeParagraphs } from "@/lib/story/generate-story";
 import { getSeededStoryById, seededStories } from "@/lib/story/seeded";
 import type { StoryRecord, StorySummary } from "@/lib/types/story";
 
@@ -15,15 +16,34 @@ type StoryMediaOverride = {
   updatedAt: string;
 };
 
+function normalizeStoredStory(story: StoryRecord): StoryRecord {
+  const paragraphSource = story.panels.map((panel) => panel.panelText);
+  const normalizedParagraphs = normalizeParagraphs(paragraphSource, story.fullText);
+
+  return {
+    ...story,
+    fullText: normalizedParagraphs.join(" "),
+    panels: story.panels.map((panel, index) => {
+      const nextText = normalizedParagraphs[index] ?? panel.panelText ?? "";
+      return {
+        ...panel,
+        panelText: nextText,
+        narrationText: panel.narrationText?.trim() ? panel.narrationText : nextText,
+      };
+    }),
+  };
+}
+
 export function getGeneratedStories(): StoryRecord[] {
-  return readFromStorage<StoryRecord[]>(STORIES_KEY, []);
+  return readFromStorage<StoryRecord[]>(STORIES_KEY, []).map(normalizeStoredStory);
 }
 
 export function saveGeneratedStory(story: StoryRecord): StoryRecord {
   const existingStories = getGeneratedStories();
-  const nextStories = [story, ...existingStories.filter((item) => item.id !== story.id)];
+  const normalizedStory = normalizeStoredStory(story);
+  const nextStories = [normalizedStory, ...existingStories.filter((item) => item.id !== story.id)];
   writeToStorage(STORIES_KEY, nextStories);
-  return story;
+  return normalizedStory;
 }
 
 export function getGeneratedStoryById(id: string): StoryRecord | undefined {
@@ -43,9 +63,9 @@ function saveStoryMediaOverride(override: StoryMediaOverride): StoryMediaOverrid
 
 function applyMediaOverride(story: StoryRecord): StoryRecord {
   const media = getStoryMediaOverrides().find((item) => item.storyId === story.id);
-  if (!media) return story;
+  if (!media) return normalizeStoredStory(story);
 
-  return {
+  return normalizeStoredStory({
     ...story,
     coverImageUrl: media.coverImageUrl ?? story.coverImageUrl,
     narrationAudioUrl: media.narrationAudioUrl ?? story.narrationAudioUrl,
@@ -53,7 +73,7 @@ function applyMediaOverride(story: StoryRecord): StoryRecord {
       ...panel,
       imageUrl: media.panelImages?.[panel.id] ?? panel.imageUrl,
     })),
-  };
+  });
 }
 
 export function getStoryById(id: string): StoryRecord | undefined {
@@ -114,6 +134,22 @@ export function persistStoryPanelImages(storyId: string, panelImages: Record<str
       ...(existing?.panelImages ?? {}),
       ...panelImages,
     },
+    updatedAt: new Date().toISOString(),
+  });
+
+  return getStoryById(storyId);
+}
+
+export function persistStoryCoverImage(storyId: string, coverImageUrl: string): StoryRecord | undefined {
+  const story = getStoryById(storyId);
+  if (!story) return undefined;
+
+  const existing = getStoryMediaOverrides().find((item) => item.storyId === storyId);
+  saveStoryMediaOverride({
+    storyId,
+    coverImageUrl,
+    narrationAudioUrl: existing?.narrationAudioUrl ?? story.narrationAudioUrl,
+    panelImages: existing?.panelImages ?? {},
     updatedAt: new Date().toISOString(),
   });
 

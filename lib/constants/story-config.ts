@@ -25,31 +25,36 @@ export const supportedLanguages: Array<{ value: StoryLanguage; label: string }> 
   { value: "urdu", label: "Urdu" },
 ];
 
-export const stylePresets: Array<{ value: StylePreset; label: string; blurb: string }> = [
+export const stylePresets: Array<{ value: StylePreset; label: string; blurb: string; previewImageUrl: string }> = [
   {
     value: "storybook-cartoon",
     label: "Storybook Cartoon",
     blurb: "Warm comic panels with rounded shapes and expressive scenes.",
+    previewImageUrl: "/images/styles/storybook-cartoon.png",
   },
   {
     value: "cozy-anime",
     label: "Cozy Anime",
     blurb: "Dreamy, whimsical frames with bright-eyed characters and soft motion.",
+    previewImageUrl: "/images/styles/cozy-anime.png",
   },
   {
     value: "minimal-pastel",
     label: "Minimal Pastel",
     blurb: "Clean scenes with calming colors and simple silhouettes.",
+    previewImageUrl: "/images/styles/minimal-pastel.png",
   },
   {
     value: "soft-watercolor",
     label: "Soft Watercolor",
     blurb: "Painterly washes, gentle textures, and quiet bedtime warmth.",
+    previewImageUrl: "/images/styles/soft-watercolor.png",
   },
   {
     value: "playful-pencil",
     label: "Playful Pencil",
     blurb: "Hand-drawn charm with sketchy lines and cheerful details.",
+    previewImageUrl: "/images/styles/playful-pencil.png",
   },
 ];
 

@@ -18,7 +18,7 @@ export function StoryPromptInput({ mode, value, onChange }: StoryPromptInputProp
   return (
     <div className="stack-sm">
       <div>
-        <p className="eyebrow">Step 3</p>
+        <p className="eyebrow">Step 2</p>
         <h2>{heading}</h2>
         <p className="muted-text">{helperText}</p>
       </div>

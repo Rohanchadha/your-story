@@ -13,9 +13,9 @@ type GenerateIdeaButtonProps = {
 
 export function GenerateIdeaButton({ mode, ideas, isLoading, onGenerate, onChoose }: GenerateIdeaButtonProps) {
   return (
-    <div className="stack-xs">
-      <Button onClick={onGenerate} variant="secondary">
-        {isLoading ? "Generating ideas..." : `Generate ${mode === "educational" ? "Learning" : "Story"} Ideas`}
+    <div className="stack-xs idea-helper">
+      <Button className="button--mini" onClick={onGenerate} variant="ghost">
+        {isLoading ? "Generating ideas..." : `Suggest ${mode === "educational" ? "learning" : "story"} ideas`}
       </Button>
       <div className="suggestion-row">
         {ideas.map((idea) => (

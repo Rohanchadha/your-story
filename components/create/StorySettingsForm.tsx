@@ -27,8 +27,9 @@ export function StorySettingsForm({
   return (
     <div className="stack-sm">
       <div>
-        <p className="eyebrow">Step 4</p>
-        <h2>Tune the story settings</h2>
+        <p className="eyebrow">Step 3</p>
+        <h2>Tune the storytelling mood</h2>
+        <p className="muted-text">Keep the setup lightweight, then pick the visual world at a glance.</p>
       </div>
 
       <div className="settings-grid">
@@ -55,17 +56,6 @@ export function StorySettingsForm({
         </label>
 
         <label className="field">
-          <span>Illustration Style</span>
-          <select value={stylePreset} onChange={(event) => onStylePresetChange(event.target.value as StylePreset)}>
-            {stylePresets.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="field">
           <span>Narrator Voice</span>
           <select value={voicePreset} onChange={(event) => onVoicePresetChange(event.target.value as VoicePreset)}>
             {voicePresets.map((item) => (
@@ -75,6 +65,35 @@ export function StorySettingsForm({
             ))}
           </select>
         </label>
+      </div>
+
+      <div className="stack-xs">
+        <div>
+          <span className="field-label">Illustration Style</span>
+          <p className="muted-text">Visual presets help parents choose tone without guessing from a dropdown label.</p>
+        </div>
+        <div className="style-preset-grid">
+          {stylePresets.map((item) => {
+            const isSelected = item.value === stylePreset;
+
+            return (
+              <button
+                key={item.value}
+                className={["style-preset-card", isSelected ? "style-preset-card--selected" : ""].filter(Boolean).join(" ")}
+                onClick={() => onStylePresetChange(item.value)}
+                type="button"
+              >
+                <div className="style-preset-card__art">
+                  <img alt={`${item.label} preview`} className="style-preset-card__image" src={item.previewImageUrl} />
+                </div>
+                <div className="style-preset-card__body">
+                  <strong>{item.label}</strong>
+                  <p>{item.blurb}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

@@ -47,6 +47,24 @@ export function NarrationBar({ story, onNarrationReady }: NarrationBarProps) {
   const [audioUrl, setAudioUrl] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
 
+  function attachAudio(audio: HTMLAudioElement) {
+    audio.onplay = () => {
+      setIsPlaying(true);
+      setIsPaused(false);
+    };
+    audio.onpause = () => {
+      if (audio.currentTime > 0 && !audio.ended) {
+        setIsPaused(true);
+      }
+      setIsPlaying(!audio.paused && !audio.ended);
+    };
+    audio.onended = () => {
+      setIsPlaying(false);
+      setIsPaused(false);
+    };
+    audioRef.current = audio;
+  }
+
   useEffect(() => {
     const supported = typeof window !== "undefined" && "speechSynthesis" in window;
     setIsSupported(supported);
@@ -69,14 +87,9 @@ export function NarrationBar({ story, onNarrationReady }: NarrationBarProps) {
     const reusableAudioUrl = audioUrl || story.narrationAudioUrl || "";
 
     if (reusableAudioUrl) {
-      audioRef.current = new Audio(reusableAudioUrl);
-      audioRef.current.onended = () => {
-        setIsPlaying(false);
-        setIsPaused(false);
-      };
-      await audioRef.current.play();
-      setIsPlaying(true);
-      setIsPaused(false);
+      const existingAudio = audioRef.current?.src === reusableAudioUrl ? audioRef.current : new Audio(reusableAudioUrl);
+      attachAudio(existingAudio);
+      await existingAudio.play();
       setStatusMessage("Playing saved narration.");
       return;
     }
@@ -100,14 +113,9 @@ export function NarrationBar({ story, onNarrationReady }: NarrationBarProps) {
         const nextAudioUrl = await blobToDataUrl(blob);
         setAudioUrl(nextAudioUrl);
         onNarrationReady?.(nextAudioUrl);
-        audioRef.current = new Audio(nextAudioUrl);
-        audioRef.current.onended = () => {
-          setIsPlaying(false);
-          setIsPaused(false);
-        };
-        await audioRef.current.play();
-        setIsPlaying(true);
-        setIsPaused(false);
+        const audio = new Audio(nextAudioUrl);
+        attachAudio(audio);
+        await audio.play();
         setStatusMessage("Playing AI-generated narration.");
         return;
       }
@@ -147,25 +155,26 @@ export function NarrationBar({ story, onNarrationReady }: NarrationBarProps) {
     if (!isPlaying) return;
     if (audioRef.current) {
       audioRef.current.pause();
-      setIsPaused(true);
       return;
     }
-    if (!isSupported) return;
+    if (!isSupported || !window.speechSynthesis.speaking) return;
     window.speechSynthesis.pause();
     setIsPaused(true);
   }
 
   function resumeNarration() {
     if (audioRef.current) {
-      void audioRef.current.play();
-      setIsPaused(false);
-      setIsPlaying(true);
+      if (audioRef.current.paused) {
+        void audioRef.current.play();
+      }
+      setStatusMessage(audioUrl || story.narrationAudioUrl ? "Resuming saved narration." : "Resuming AI-generated narration.");
       return;
     }
-    if (!isSupported) return;
+    if (!isSupported || !window.speechSynthesis.paused) return;
     window.speechSynthesis.resume();
     setIsPaused(false);
     setIsPlaying(true);
+    setStatusMessage("Resuming browser narration.");
   }
 
   function stopNarration() {
@@ -186,9 +195,10 @@ export function NarrationBar({ story, onNarrationReady }: NarrationBarProps) {
       <p className="eyebrow">Narration</p>
       <h2>{story.voicePreset.replaceAll("-", " ")}</h2>
       <p className="muted-text">
-        When your API key is configured, this will use AI-generated speech first. Otherwise it falls back to your browser's speech engine.
+        Tap play to hear this story in the selected narrator voice. If live voice generation is temporarily unavailable,
+        the reader will switch to browser narration automatically.
       </p>
-      <p className="muted-text">Voice output is AI-generated when the API path is active.</p>
+      <p className="muted-text">Saved audio replays instantly, and new narration is generated on demand.</p>
       {statusMessage ? <p className="media-status">{statusMessage}</p> : null}
       <div className="panel-card__actions">
         {!isPlaying ? <Button onClick={startNarration}>{isApiLoading ? "Preparing Audio..." : "Play"}</Button> : null}

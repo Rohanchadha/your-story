@@ -8,8 +8,28 @@ import { NarrationBar } from "@/components/story-reader/NarrationBar";
 import { Button } from "@/components/shared/Button";
 import { getFavoriteStoryIds, toggleFavoriteStory } from "@/lib/storage/favorites";
 import { pushRecentStory } from "@/lib/storage/recents";
-import { getStoryById, persistStoryNarrationAudio, persistStoryPanelImages } from "@/lib/storage/stories";
+import { getStoryById, persistStoryCoverImage, persistStoryNarrationAudio, persistStoryPanelImages } from "@/lib/storage/stories";
 import type { StoryRecord } from "@/lib/types/story";
+
+function FavoriteIcon({ filled }: { filled: boolean }) {
+  return filled ? (
+    <svg aria-hidden="true" className="story-cta__icon" viewBox="0 0 24 24">
+      <path d="M12 21.35 10.55 20C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.5L12 21.35Z" />
+    </svg>
+  ) : (
+    <svg aria-hidden="true" className="story-cta__icon" viewBox="0 0 24 24">
+      <path d="m12 20.1-1.45-1.32C5.4 14.11 2 11.03 2 7.25 2 4.17 4.42 1.75 7.5 1.75c1.74 0 3.41.81 4.5 2.09 1.09-1.28 2.76-2.09 4.5-2.09 3.08 0 5.5 2.42 5.5 5.5 0 3.78-3.4 6.86-8.55 11.53L12 20.1Zm0-2.44c4.39-4 7.25-6.6 7.25-9.33 0-2.01-1.49-3.5-3.5-3.5-1.37 0-2.68.81-3.24 2.05h-1.02C11.17 5.64 9.86 4.83 8.49 4.83c-2.01 0-3.5 1.49-3.5 3.5 0 2.73 2.86 5.33 7.01 9.33Z" />
+    </svg>
+  );
+}
+
+function PrintIcon() {
+  return (
+    <svg aria-hidden="true" className="story-cta__icon" viewBox="0 0 24 24">
+      <path d="M7 8V3h10v5H7Zm8-2V5H9v1h6Zm2 12h-2v4H9v-4H7a3 3 0 0 1-3-3v-4.5A2.5 2.5 0 0 1 6.5 8h11A2.5 2.5 0 0 1 20 10.5V15a3 3 0 0 1-3 3Zm-4 2v-4h-2v4h2Zm4-10H6.5a.5.5 0 0 0-.5.5V15a1 1 0 0 0 1 1h1v-2h8v2h1a1 1 0 0 0 1-1v-4.5a.5.5 0 0 0-.5-.5Z" />
+    </svg>
+  );
+}
 
 export default function StoryPage() {
   const params = useParams<{ id: string }>();
@@ -80,10 +100,15 @@ export default function StoryPage() {
         story.id,
         Object.fromEntries(nextPanels.filter((panel) => panel.imageUrl).map((panel) => [panel.id, panel.imageUrl as string])),
       );
+      const firstImage = nextPanels.find((panel) => panel.imageUrl)?.imageUrl;
+      if (firstImage) {
+        persistStoryCoverImage(story.id, firstImage);
+      }
 
       setStory(
         persisted ?? {
           ...story,
+          coverImageUrl: firstImage ?? story.coverImageUrl,
           panels: nextPanels,
         },
       );
@@ -120,9 +145,13 @@ export default function StoryPage() {
 
       const payload = (await response.json()) as { imageUrl: string };
       const persisted = persistStoryPanelImages(story.id, { [panelId]: payload.imageUrl });
+      if (!story.coverImageUrl) {
+        persistStoryCoverImage(story.id, payload.imageUrl);
+      }
       setStory(
         persisted ?? {
           ...story,
+          coverImageUrl: story.coverImageUrl ?? payload.imageUrl,
           panels: story.panels.map((item) => (item.id === panelId ? { ...item, imageUrl: payload.imageUrl } : item)),
         },
       );
@@ -159,15 +188,21 @@ export default function StoryPage() {
           <p className="reader-meta">{metadataLabel}</p>
         </div>
         {story.coverImageUrl ? <img alt={`${story.title} cover`} className="reader-cover" src={story.coverImageUrl} /> : null}
-        <div className="hero-section__actions">
-          <Button onClick={handleFavoriteToggle} variant={isFavorite ? "secondary" : "ghost"}>
-            {isFavorite ? "Favorited" : "Favorite"}
+        <div className="story-reader__actions">
+          <Button
+            className={["story-cta", isFavorite ? "story-cta--active" : ""].filter(Boolean).join(" ")}
+            onClick={handleFavoriteToggle}
+            variant="secondary"
+          >
+            <FavoriteIcon filled={isFavorite} />
+            <span>{isFavorite ? "Favorited" : "Favorite"}</span>
           </Button>
-          <Button onClick={handleGenerateArtwork} variant="secondary">
+          <Button className="story-cta story-cta--secondary" onClick={handleGenerateArtwork} variant="secondary">
             {isGeneratingArt ? "Generating AI Art..." : "Generate AI Artwork"}
           </Button>
-          <Button href={`/stories/${story.id}/print`} variant="secondary">
-            Print Story
+          <Button className="story-cta story-cta--print" href={`/stories/${story.id}/print`} variant="secondary">
+            <PrintIcon />
+            <span>Print Story</span>
           </Button>
         </div>
       </section>
@@ -188,12 +223,11 @@ export default function StoryPage() {
       ) : null}
 
       <section className="reader-grid">
-        {story.panels.map((panel, index) => (
+        {story.panels.map((panel) => (
           <article className="reader-panel" key={panel.id}>
             <div className="reader-panel__art" style={{ background: story.coverAccent }}>
               {panel.imageUrl ? <img alt={panel.title} className="reader-panel__image" src={panel.imageUrl} /> : null}
               <div className="reader-panel__badge">
-                <span>Panel {index + 1}</span>
                 <strong>{panel.title}</strong>
               </div>
             </div>
