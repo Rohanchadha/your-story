@@ -3,6 +3,13 @@
 import { stylePresets, supportedLanguages, voicePresets } from "@/lib/constants/story-config";
 import type { StoryLanguage, StylePreset, VoicePreset } from "@/lib/types/story";
 
+const voiceIcons: Record<VoicePreset, string> = {
+  "warm-parent": "/images/icons/voice-warm-parent.svg",
+  "playful-friend": "/images/icons/voice-playful-friend.svg",
+  "gentle-grandma": "/images/icons/voice-gentle-grandma.svg",
+  "curious-explorer": "/images/icons/voice-curious-explorer.svg",
+};
+
 type StorySettingsFormProps = {
   language: StoryLanguage;
   level: number;
@@ -57,17 +64,30 @@ export function StorySettingsForm({
             {level <= 3 ? "Simple words, short sentences (ages 2–4)" : level <= 6 ? "Richer vocabulary, gentle complexity (ages 4–7)" : "Longer narratives, bigger ideas (ages 7–10)"}
           </small>
         </label>
+      </div>
 
-        <label className="field">
-          <span>Narrator Voice</span>
-          <select value={voicePreset} onChange={(event) => onVoicePresetChange(event.target.value as VoicePreset)}>
-            {voicePresets.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="stack-xs">
+        <div>
+          <span className="field-label">Narrator Voice</span>
+          <p className="muted-text">Choose who tells the story aloud.</p>
+        </div>
+        <div className="voice-preset-grid">
+          {voicePresets.map((item) => {
+            const isSelected = item.value === voicePreset;
+            return (
+              <button
+                key={item.value}
+                className={["voice-preset-card", isSelected ? "voice-preset-card--selected" : ""].filter(Boolean).join(" ")}
+                onClick={() => onVoicePresetChange(item.value)}
+                type="button"
+              >
+                <img src={voiceIcons[item.value]} alt="" className="voice-preset-card__icon" aria-hidden="true" />
+                <strong>{item.label}</strong>
+                <span>{item.blurb}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className="stack-xs">

@@ -5,7 +5,7 @@ export function HeroSection() {
   return (
     <section className="hero-section">
       <div className="hero-section__copy">
-        <p className="eyebrow">Premium storytelling for modern families</p>
+        <p className="eyebrow">Bedtime stories, made just for your little one</p>
         <h1>Stories that feel hand-crafted for your child, even on your busiest days.</h1>
         <p className="hero-section__body">
           Create narrated comic stories, explain big ideas simply, and print beautiful panels for screen-free story

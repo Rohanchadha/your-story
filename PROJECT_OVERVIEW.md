@@ -2,7 +2,7 @@
 
 ## What This Project Is
 
-StorySpark is an AI-first storytelling product for parents and children. The experience is designed to feel premium, warm, and simple: a parent gives a prompt, chooses the storytelling mood, and receives a complete illustrated story that can be read on screen, narrated aloud, or printed for offline use.
+Bedtime is an AI-first storytelling product for parents and children. The experience is designed to feel premium, warm, and simple: a parent gives a prompt, chooses the storytelling mood, and receives a complete illustrated story that can be read on screen, narrated aloud, or printed for offline use.
 
 The product sits at the intersection of:
 

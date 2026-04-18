@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <!-- Warm rounded square background -->
+  <rect x="2" y="2" width="36" height="36" rx="10" fill="#2d1f19"/>
+  <!-- Large bold moon -->
+  <path d="M24 9C18 9 13 14 13 20s5 11 11 11c2.2 0 4.2-.6 6-1.8-2 1.6-4.6 2.5-7.3 2.5-6.5 0-11.7-5.2-11.7-11.7S16.2 8.3 22.7 8.3c2.7 0 5.3.9 7.3 2.5C28.2 9.6 26.2 9 24 9z" fill="#ffd166"/>
+  <!-- Big 5-point star -->
+  <polygon points="32,11 33.5,15 37,15.3 34.5,17.5 35.2,21 32,19.2 28.8,21 29.5,17.5 27,15.3 30.5,15" fill="#fff" opacity="0.95"/>
+  <!-- Small stars -->
+  <circle cx="28" cy="8" r="1.5" fill="#fff" opacity="0.8"/>
+  <circle cx="36" cy="22" r="1" fill="#fff" opacity="0.6"/>
+</svg>

@@ -7,6 +7,21 @@ export const storyModes: Array<{ value: StoryMode; label: string; description: s
     description: "Wonder-filled tales with heart, humor, and a cozy ending.",
   },
   {
+    value: "math",
+    label: "Math Story",
+    description: "Numbers and patterns brought to life through playful narratives.",
+  },
+  {
+    value: "science",
+    label: "Science Story",
+    description: "Explore the natural world with curiosity-driven storytelling.",
+  },
+  {
+    value: "history",
+    label: "History Story",
+    description: "Journey through time with stories about real people and events.",
+  },
+  {
     value: "educational",
     label: "Educational Story",
     description: "Complex ideas explained gently through playful storytelling.",
@@ -85,9 +100,5 @@ export const homeCategories = [
   "Math Stories",
   "Science Stories",
   "History Stories",
-  "Honesty",
-  "Empathy",
-  "Being Helpful",
-  "Bedtime",
-  "Adventure",
+  "Values",
 ];

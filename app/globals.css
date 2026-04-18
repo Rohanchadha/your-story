@@ -128,6 +128,20 @@ textarea {
   font-family: var(--font-display);
 }
 
+.brand-mark strong {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  line-height: 1.05;
+}
+
+.brand-mark__text {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .brand-mark small {
   display: block;
   color: var(--ink-soft);
@@ -362,6 +376,30 @@ textarea {
   color: var(--ink-soft);
 }
 
+.category-pill--link {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--ink);
+  padding: 14px 18px;
+  text-align: center;
+  text-decoration: none;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.category-pill--link:hover,
+.category-pill--link:focus-visible {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 146, 107, 0.6);
+  color: var(--ink);
+  box-shadow: 0 12px 24px rgba(159, 116, 82, 0.14);
+}
+
+.category-pill--link:focus-visible {
+  outline: 3px solid rgba(255, 146, 107, 0.45);
+  outline-offset: 3px;
+}
+
 .hero-section__panel {
   display: flex;
   flex-direction: column;
@@ -474,6 +512,9 @@ textarea {
 
 .story-card__body {
   padding: 18px;
+  display: flex;
+  flex-direction: column;
+  min-height: 240px;
 }
 
 .story-card__cover-image {
@@ -503,16 +544,26 @@ textarea {
 .story-card h3 {
   margin: 0 0 10px;
   font-size: 1.45rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .story-card p {
   margin-top: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
 }
 
 .story-card__actions {
   justify-content: flex-end;
   align-items: center;
   color: var(--ink-soft);
+  margin-top: auto;
 }
 
 .error-text {
@@ -869,6 +920,50 @@ textarea {
   object-fit: cover;
 }
 
+.voice-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.voice-preset-card {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.74);
+  padding: 16px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.voice-preset-card:hover {
+  transform: translateY(-2px);
+}
+
+.voice-preset-card--selected {
+  border-color: rgba(255, 146, 107, 0.85);
+  box-shadow: 0 0 0 4px rgba(255, 146, 107, 0.12);
+}
+
+.voice-preset-card__icon {
+  width: 56px;
+  height: 56px;
+}
+
+.voice-preset-card strong {
+  font-size: 0.95rem;
+}
+
+.voice-preset-card span {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.3;
+}
+
 .style-preset-card__body strong {
   display: block;
   margin-bottom: 6px;
@@ -1104,6 +1199,26 @@ textarea {
   .print-card {
     grid-template-columns: 1fr;
   }
+
+  .dashboard-grid--4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-title,
+  .section-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .story-of-the-day__info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 @media (max-width: 720px) {
@@ -1122,10 +1237,184 @@ textarea {
 
   .hero-section h1,
   .page-title h1 {
-    font-size: clamp(2rem, 10vw, 3rem);
+    font-size: clamp(1.8rem, 8vw, 2.6rem);
+  }
+
+  .section-heading h2,
+  .panel-card h2,
+  .profile-card h2,
+  .empty-state h2 {
+    font-size: clamp(1.3rem, 5vw, 1.8rem);
   }
 
   .reader-header {
     flex-direction: column;
+  }
+
+  .story-grid,
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .choice-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .create-stage__meta {
+    grid-template-columns: 1fr;
+  }
+
+  .create-stage__poster strong {
+    font-size: clamp(1.5rem, 6vw, 2.2rem);
+  }
+
+  .hero-section__chips {
+    gap: 8px;
+  }
+
+  .hero-section__chips span,
+  .category-pill,
+  .chip-button,
+  .suggestion-pill {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .app-header {
+    padding: 14px 16px;
+    border-radius: 24px;
+    gap: 12px;
+  }
+
+  .nav-links {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .brand-mark strong {
+    font-size: 1.35rem;
+  }
+
+  .brand-mark small {
+    display: none;
+  }
+
+  .button {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+
+  .dashboard-grid--4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-stat h2 {
+    font-size: 1.8rem;
+  }
+
+  .hero-illustration {
+    max-height: 280px;
+  }
+
+  .story-reader__actions {
+    justify-content: flex-start;
+  }
+
+  .style-preset-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .voice-preset-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .page-shell {
+    padding: 12px;
+  }
+
+  .hero-section__copy,
+  .section-block,
+  .panel-card,
+  .empty-state {
+    padding: 16px;
+  }
+
+  .hero-section h1,
+  .page-title h1 {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+  }
+
+  .dashboard-grid,
+  .dashboard-grid--4 {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .dashboard-stat {
+    padding: 14px;
+  }
+
+  .dashboard-stat h2 {
+    font-size: 1.5rem;
+  }
+
+  .hero-section__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .hero-section__actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .panel-card__actions {
+    flex-direction: column;
+  }
+
+  .panel-card__actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .story-of-the-day__image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .choice-card__icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .app-header {
+    padding: 12px 14px;
+    border-radius: 20px;
+  }
+
+  .nav-links a {
+    font-size: 0.88rem;
+  }
+
+  .hero-illustration {
+    max-height: 220px;
+  }
+
+  .style-preset-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .create-stage__poster {
+    min-height: 180px;
   }
 }

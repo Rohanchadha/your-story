@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <circle cx="32" cy="32" r="28" fill="#fde3ef" stroke="#f4a6b0" stroke-width="2"/>
+  <!-- Plus sign -->
+  <rect x="18" y="28" width="12" height="8" rx="2" fill="#e08a95"/>
+  <rect x="22" y="24" width="4" height="16" rx="2" fill="#e08a95"/>
+  <!-- Equals sign -->
+  <rect x="36" y="26" width="12" height="3" rx="1.5" fill="#7eb8c9"/>
+  <rect x="36" y="33" width="12" height="3" rx="1.5" fill="#7eb8c9"/>
+  <!-- Numbers -->
+  <text x="10" y="20" font-family="sans-serif" font-weight="900" font-size="12" fill="#e08a95">3</text>
+  <text x="42" y="52" font-family="sans-serif" font-weight="900" font-size="12" fill="#7eb8c9">7</text>
+  <!-- Stars -->
+  <circle cx="50" cy="12" r="2.5" fill="#ffd166"/>
+  <circle cx="14" cy="50" r="2" fill="#ffd166" opacity="0.7"/>
+</svg>

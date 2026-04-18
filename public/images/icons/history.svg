@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <circle cx="32" cy="32" r="28" fill="#fff3e0" stroke="#ffb74d" stroke-width="2"/>
+  <!-- Scroll/parchment -->
+  <path d="M18 16 Q18 12 22 12 L42 12 Q46 12 46 16 L46 48 Q46 52 42 52 L22 52 Q18 52 18 48Z" fill="#ffecd2" stroke="#d4a574" stroke-width="1.5"/>
+  <!-- Scroll curl top -->
+  <path d="M18 16 Q18 12 22 12 Q18 12 18 16" fill="none" stroke="#d4a574" stroke-width="1.5"/>
+  <ellipse cx="18" cy="14" rx="3" ry="4" fill="#ffecd2" stroke="#d4a574" stroke-width="1"/>
+  <!-- Text lines on scroll -->
+  <line x1="24" y1="22" x2="40" y2="22" stroke="#d4a574" stroke-width="1.5" opacity="0.6"/>
+  <line x1="24" y1="28" x2="38" y2="28" stroke="#d4a574" stroke-width="1.5" opacity="0.6"/>
+  <line x1="24" y1="34" x2="40" y2="34" stroke="#d4a574" stroke-width="1.5" opacity="0.6"/>
+  <line x1="24" y1="40" x2="36" y2="40" stroke="#d4a574" stroke-width="1.5" opacity="0.6"/>
+  <!-- Hourglass -->
+  <path d="M48 44 L52 44 L51 48 L49 48Z" fill="#ffb74d"/>
+  <path d="M48 54 L52 54 L51 50 L49 50Z" fill="#ffb74d"/>
+  <line x1="48" y1="44" x2="52" y2="44" stroke="#e08a00" stroke-width="1.5"/>
+  <line x1="48" y1="54" x2="52" y2="54" stroke="#e08a00" stroke-width="1.5"/>
+</svg>

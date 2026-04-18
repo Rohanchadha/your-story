@@ -1,4 +1,4 @@
-export type StoryMode = "adventure" | "educational";
+export type StoryMode = "adventure" | "educational" | "math" | "science" | "history";
 
 export type StoryLanguage =
   | "english"

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type CategoryGridProps = {
   categories: string[];
 };
@@ -13,9 +15,13 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
       </div>
       <div className="category-grid">
         {categories.map((category) => (
-          <div className="category-pill" key={category}>
+          <Link
+            className="category-pill category-pill--link"
+            key={category}
+            href={`/create?category=${encodeURIComponent(category)}`}
+          >
             {category}
-          </div>
+          </Link>
         ))}
       </div>
     </section>

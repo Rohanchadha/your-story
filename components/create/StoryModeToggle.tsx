@@ -6,6 +6,9 @@ import { storyModes } from "@/lib/constants/story-config";
 const modeIcons: Record<StoryMode, string> = {
   adventure: "/images/icons/adventure.svg",
   educational: "/images/icons/educational.svg",
+  math: "/images/icons/math.svg",
+  science: "/images/icons/science.svg",
+  history: "/images/icons/history.svg",
 };
 
 type StoryModeToggleProps = {

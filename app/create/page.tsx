@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { GenerateIdeaButton } from "@/components/create/GenerateIdeaButton";
 import { StoryModeToggle } from "@/components/create/StoryModeToggle";
 import { StoryPromptInput } from "@/components/create/StoryPromptInput";
 import { StorySettingsForm } from "@/components/create/StorySettingsForm";
 import { PageShell } from "@/components/layout/PageShell";
 import { Button } from "@/components/shared/Button";
-import { stylePresets, supportedLanguages, voicePresets } from "@/lib/constants/story-config";
+import { storyModes, stylePresets, supportedLanguages, voicePresets } from "@/lib/constants/story-config";
 import { pushRecentStory } from "@/lib/storage/recents";
 import { persistStoryCoverImage, persistStoryPanelImages, saveGeneratedStory } from "@/lib/storage/stories";
 import type { StoryLanguage, StoryMode, StoryRecord, StylePreset, VoicePreset } from "@/lib/types/story";
@@ -90,10 +90,46 @@ async function generateArtworkForStory(story: StoryRecord): Promise<StoryRecord>
     : nextStory;
 }
 
+const categoryPresets: Record<string, { mode: StoryMode; prompt: string }> = {
+  "Math Stories": {
+    mode: "educational",
+    prompt: "A fun math adventure that teaches a young child a simple counting or number concept.",
+  },
+  "Science Stories": {
+    mode: "educational",
+    prompt: "A curious science adventure that explains a natural phenomenon to a young child.",
+  },
+  "History Stories": {
+    mode: "educational",
+    prompt: "A gentle history story that introduces a young child to a moment from the past.",
+  },
+  Values: {
+    mode: "adventure",
+    prompt: "A heartwarming bedtime story that teaches a young child a simple value like kindness or courage.",
+  },
+};
+
+function getCategoryPreset(category: string): { mode: StoryMode; prompt: string } | null {
+  return categoryPresets[category] ?? null;
+}
+
 export default function CreatePage() {
+  return (
+    <Suspense fallback={null}>
+      <CreatePageInner />
+    </Suspense>
+  );
+}
+
+function CreatePageInner() {
   const router = useRouter();
-  const [mode, setMode] = useState<StoryMode>("adventure");
-  const [prompt, setPrompt] = useState("");
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get("category");
+
+  const categoryPreset = categoryParam ? getCategoryPreset(categoryParam) : null;
+
+  const [mode, setMode] = useState<StoryMode>(categoryPreset?.mode ?? "adventure");
+  const [prompt, setPrompt] = useState(categoryPreset?.prompt ?? "");
   const [language, setLanguage] = useState<StoryLanguage>("english");
   const [level, setLevel] = useState(4);
   const [stylePreset, setStylePreset] = useState<StylePreset>("storybook-cartoon");
@@ -110,6 +146,7 @@ export default function CreatePage() {
   const selectedStyle = stylePresets.find((item) => item.value === stylePreset);
   const selectedVoice = voicePresets.find((item) => item.value === voicePreset);
   const selectedLanguage = supportedLanguages.find((item) => item.value === language);
+  const selectedMode = storyModes.find((item) => item.value === mode);
 
   useEffect(() => {
     if (generationPhase === "idle") {
@@ -238,7 +275,7 @@ export default function CreatePage() {
               alt={selectedStyle?.label ?? "Style preview"}
               className="create-stage__poster-image"
             />
-            <span>{mode === "educational" ? "Learning Story" : "Adventure Story"}</span>
+            <span>{selectedMode?.label ?? "Story"}</span>
             <strong>{prompt.trim() || "Your next magical family story"}</strong>
             <p>
               {selectedStyle?.label} in {selectedLanguage?.label}, level {level}.
@@ -286,7 +323,7 @@ export default function CreatePage() {
 
         <div className="panel-card create-preview-panel">
           <p className="eyebrow">Story setup</p>
-          <h2>{mode === "adventure" ? "Adventure story" : "Educational story"}</h2>
+          <h2>{selectedMode?.label ?? "Story"}</h2>
           <p className="muted-text">
             Your story will open with beautiful illustrations and narration — ready for bedtime the moment it&apos;s done.
           </p>

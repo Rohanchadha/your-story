@@ -12,10 +12,10 @@ export function AppHeader() {
   return (
     <header className="app-header">
       <Link className="brand-mark" href="/">
-        <Image src="/images/logo.svg" alt="StorySpark logo" width={32} height={32} className="brand-mark__logo" />
-        <span>
-          <strong>StorySpark</strong>
-          <small>Story studio for families</small>
+        <Image src="/images/logo-v1.svg" alt="Bedtime logo" width={40} height={40} className="brand-mark__logo" />
+        <span className="brand-mark__text">
+          <strong>BedTime</strong>
+          <small>A Story Studio for your kid</small>
         </span>
       </Link>
 

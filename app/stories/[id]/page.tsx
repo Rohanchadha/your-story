@@ -206,24 +206,26 @@ export default function StoryPage() {
         </div>
       </section>
 
-      <section className="panel-card">
-        <p className="eyebrow">Scene artwork</p>
-        <h2>Illustrations</h2>
-        <p className="muted-text">
-          Generate brand-new artwork for every scene at once. Saved images load instantly the next time you open the
-          story.
-        </p>
-        {artStatusMessage ? <p className="media-status">{artStatusMessage}</p> : null}
-        <div className="panel-card__actions">
-          <Button onClick={handleGenerateArtwork} disabled={isGeneratingArt}>
-            {isGeneratingArt
-              ? "Generating artwork..."
-              : story.panels.some((panel) => panel.imageUrl)
-                ? "Regenerate all panel art"
-                : "Generate all panel art"}
-          </Button>
-        </div>
-      </section>
+      {(!story.panels.every((panel) => panel.imageUrl) || isGeneratingArt || artStatusMessage) && (
+        <section className="panel-card">
+          <p className="eyebrow">Scene artwork</p>
+          <h2>Illustrations</h2>
+          <p className="muted-text">
+            Generate brand-new artwork for every scene at once. Saved images load instantly the next time you open the
+            story.
+          </p>
+          {artStatusMessage ? <p className="media-status">{artStatusMessage}</p> : null}
+          <div className="panel-card__actions">
+            <Button onClick={handleGenerateArtwork} disabled={isGeneratingArt}>
+              {isGeneratingArt
+                ? "Generating artwork..."
+                : story.panels.some((panel) => panel.imageUrl)
+                  ? "Regenerate all panel art"
+                  : "Generate all panel art"}
+            </Button>
+          </div>
+        </section>
+      )}
     </PageShell>
   );
 }

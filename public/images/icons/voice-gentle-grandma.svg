@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <circle cx="32" cy="32" r="28" fill="#f3e8ff" stroke="#c3aed6" stroke-width="2"/>
+  <!-- Grandma figure with glasses -->
+  <circle cx="32" cy="22" r="10" fill="#f5dcc3" stroke="#d4a574" stroke-width="1.5"/>
+  <!-- Glasses -->
+  <circle cx="28" cy="20" r="4" fill="none" stroke="#8d6e63" stroke-width="1.5"/>
+  <circle cx="36" cy="20" r="4" fill="none" stroke="#8d6e63" stroke-width="1.5"/>
+  <line x1="32" y1="20" x2="32" y2="20" stroke="#8d6e63" stroke-width="1.5"/>
+  <!-- Eyes behind glasses -->
+  <circle cx="28" cy="20" r="1.2" fill="#2d1f19"/>
+  <circle cx="36" cy="20" r="1.2" fill="#2d1f19"/>
+  <!-- Gentle smile -->
+  <path d="M28 25 Q32 28 36 25" fill="none" stroke="#d4a574" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Hair bun -->
+  <circle cx="32" cy="12" r="5" fill="#b0b0b0" stroke="#999" stroke-width="1"/>
+  <!-- Knitting needles / cozy element -->
+  <line x1="20" y1="46" x2="32" y2="38" stroke="#c3aed6" stroke-width="2" stroke-linecap="round"/>
+  <line x1="44" y1="46" x2="32" y2="38" stroke="#c3aed6" stroke-width="2" stroke-linecap="round"/>
+  <!-- Small heart -->
+  <path d="M30 44 Q30 42 32 43 Q34 42 34 44 Q34 46 32 48 Q30 46 30 44Z" fill="#f4a6b0"/>
+</svg>
